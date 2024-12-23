@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Update Planeswalkers</title>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th align="left">Name</th>
+                    <th align="left">Collected</th>
+                    <th>Set</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for planeswalker in planeswalkers %}
+            <form method="POST" action="{{ url_for('update_planeswalkers') }}">       
+            <tr>
+
+                <td>{{ planeswalker[0] }}</td>
+                <td>
+                    <select name="collected" required>
+                        <option value="true" {% if planeswalker[1] %}selected {% endif %}>Yes</option>
+                        <option value="false" {% if not planeswalker[1] %}selected{% endif %}>No</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" name="collected_set" value="{{ planeswalker[3] or planeswalker[2] }}" required>
+                </td>
+                <td>
+                    <button type="submit" name="name" value="{{planeswalker[0] }}" >Update</button>
+                </td>
+            </tr> 
+        </form>
+            {% endfor %}
+        </tbody>
+        </table>
+    </body>
+</html>
