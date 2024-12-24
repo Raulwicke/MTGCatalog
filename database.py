@@ -110,7 +110,7 @@ def create_users_table():
 def add_user(username, password):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    password_hash = generate_password_hash(password).decode('utf-8')  # Updated hashing method
+    password_hash = generate_password_hash(password)  # Updated hashing method
     try:
         cursor.execute('INSERT INTO users (username, password_hash) VALUES (?, ?)', (username, password_hash))
         conn.commit()
@@ -124,8 +124,18 @@ def get_user_by_username(username):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
     user = cursor.fetchone()
-    print("PRINTING FROM DB")
-    print(user)
+    # print("PRINTING FROM DB")
+    # print(user)
+    conn.close()
+    return user
+
+def get_user_by_id(id):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = ?", (id,))
+    user = cursor.fetchone()
+    # print("PRINTING FROM DB")
+    # print(user)
     conn.close()
     return user
 
