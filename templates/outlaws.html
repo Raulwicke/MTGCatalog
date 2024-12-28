@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outlaws of Thunder Junction Catalog</title>
+    <link rel="stylesheet" href="/static/new-style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('open-sidebar').addEventListener('click', function () {
+                document.getElementById('sidebar').style.width = '300px'; // Open sidebar
+            });
+    
+            document.getElementById('close-sidebar').addEventListener('click', function () {
+                document.getElementById('sidebar').style.width = '0'; // Close sidebar
+            });
+        });
+    </script>
+    
+</head>
+<body>
+    <div class="nav-bar">
+        <ul>
+            <li><a href="/" class="dropbtn">Home</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Collections</a>
+                <div class="dropdown-content">
+                    <a href="/planeswalkers">Planeswalkers</a>
+                    <a href="/collections/otj">Outlaws</a>
+                    <a href="/collections/mkm">Karlov</a>
+                </div>
+            </li>
+            {% if current_user.is_authenticated %}
+                <li><a href="/update_outlaws" class="dropbtn">Update Collection</a></li>
+            {% endif %}</li>
+        </ul>
+        <div class="login-container">
+                {% if current_user.is_authenticated %}
+                <a href="/logout" class="login-btn">Logout</a>
+                {% else %}
+                    class="nav-links"><a href="/login" class="login-btn">Login</a>
+                {% endif %}
+        </div>
+    </div>
+    <h1>Outlaws of Thunder Junction Catalog</h1> 
+    <div class="card-container">
+        {% for outlaw in outlaws %}
+            <div class="card">
+                {% if outlaw.image_url %}
+                    <img 
+                    src="{{ outlaw.image_url}}" 
+                    alt="{{ outlaw.name }}" 
+                    class="{% if not outlaw.greyscale %}collected{% endif %}"
+                    onclick="showPopup('{{outlaw.name }}')">
+                {% else %}
+                    <div>No Image Available</div>
+                {% endif %}
+                <div>{{ outlaw.name }} (#{{ outlaw.collector_number }})</div>
+                <div class="collection-status">
+                    Collected: {{ outlaw.collected }} / 4
+                </div>   
+            </div>
+        {% endfor %}
+    </div>
+    
+</body>
+</html>

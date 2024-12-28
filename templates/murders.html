@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murders at Karlov Manor Catalog</title>
+    <link rel="stylesheet" href="/static/new-style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('open-sidebar').addEventListener('click', function () {
+                document.getElementById('sidebar').style.width = '300px'; // Open sidebar
+            });
+    
+            document.getElementById('close-sidebar').addEventListener('click', function () {
+                document.getElementById('sidebar').style.width = '0'; // Close sidebar
+            });
+        });
+    </script>
+    
+</head>
+<body>
+    <div class="nav-bar">
+        <ul>
+            <li><a href="/" class="dropbtn">Home</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Collections</a>
+                <div class="dropdown-content">
+                    <a href="/planeswalkers">Planeswalkers</a>
+                    <a href="/collections/otj">Outlaws</a>
+                    <a href="/collections/mkm">Karlov</a>
+                </div>
+            </li>
+            {% if current_user.is_authenticated %}
+                <li><a href="/update_murders" class="dropbtn">Update Collection</a></li>
+            {% endif %}</li>
+        </ul>
+        <div class="login-container">
+                {% if current_user.is_authenticated %}
+                <a href="/logout" class="login-btn">Logout</a>
+                {% else %}
+                    class="nav-links"><a href="/login" class="login-btn">Login</a>
+                {% endif %}
+        </div>
+    </div>
+    <h1>Murders at Karlov Manor Catalog</h1> 
+    <div class="card-container">
+        {% for murder in murders %}
+            <div class="card">
+                {% if murder.image_url %}
+                    <img 
+                    src="{{ murder.image_url}}" 
+                    alt="{{ murder.name }}" 
+                    class="{% if not murder.greyscale %}collected{% endif %}"
+                    onclick="showPopup('{{murder.name }}')">
+                {% else %}
+                    <div>No Image Available</div>
+                {% endif %}
+                <div>{{ murder.name }} (#{{ murder.collector_number }})</div>
+                <div class="collection-status">
+                    Collected: {{ murder.collected }} / 4
+                </div>   
+            </div>
+        {% endfor %}
+    </div>
+    
+</body>
+</html>

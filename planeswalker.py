@@ -1,8 +1,9 @@
 import scrython as scry
-import database as db
+import db_files.database as db
 import csv
 import asyncio
 import image_fix
+import db_files.standard_db
 
 # Ensure the database is set up
 db.database_setup()
@@ -56,6 +57,10 @@ if __name__ == "__main__":
     # loop = asyncio.get_event_loop()
     # print(f"Loop running: {loop.is_running()}")
     # import_planeswalkers_from_csv('Planeswalkers.csv')
-    # image_fix.process_missing_images()
-    db.remove_user_by_username('Raulwicke') 
-    db.add_user('Raulwicke','3WtCtW\"ism\"')   # None
+
+    # db_files.standard_db.import_outlaws('./csvs/otj.csv')
+    # db_files.standard_db.import_murders('./csvs/mkm.csv')
+    db.run_table_cleanup()
+    image_fix.process_missing_images()
+
+    None

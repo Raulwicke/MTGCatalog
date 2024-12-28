@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTG Collection Manager</title>
+    <link rel="stylesheet" href="/static/new-style.css">
+</head>
+<body>
+    <div class="nav-bar">
+        <ul>
+            <li><a href="/" class="dropbtn">Home</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Collections</a>
+                <div class="dropdown-content">
+                    <a href="/planeswalkers">Planeswalkers</a>
+                    <a href="/collections/otj">Outlaws</a>
+                    <a href="/collections/mkm">Karlov</a>
+                </div>
+            </li>
+        </ul>
+        <div class="login-container">
+                {% if current_user.is_authenticated %}
+                <a href="/logout" class="login-btn">Logout</a>
+                {% else %}
+                    class="nav-links"><a href="/login" class="login-btn">Login</a>
+                {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Welcome to My MTG Collection Portal!</h1>
+    <div class="section">
+        <p>
+            Explore the curated digital catalog of my personal 
+            <a href="https://magic.wizards.com/en" target="_blank">Magic: The Gathering</a> collection, 
+            meticulously documented and shared in the hopes of completing the missing pieces across various iconic sets. 
+            Whether you're here to admire the collection, compare notes, or collaborate in filling the gaps, 
+            this platform offers a comprehensive view of the cards that make up my journey through the MTG multiverse.
+        </p>
+        <p>
+            This is more than a database—it's a living archive of my passion for Magic, 
+            designed to connect with fellow collectors and enthusiasts.
+        </p>
+    </div>
+
+    <h2>Key Features</h2>
+    <div class="section features">
+        <ul>
+            <li>
+                <strong>Personalized Catalogs:</strong> 
+                Navigate through detailed collections like 
+                <a href="/collections/planeswalkers">Planeswalkers</a> and the latest Standard sets. 
+                View high-quality images, collector details, and ownership status.
+            </li>
+            <li>
+                <strong>Dynamic Search and Filtering:</strong> 
+                Easily find specific cards by name, set, or collector number using the 
+                Search functionality.
+            </li>
+            <li>
+                <strong>Interactive Updates:</strong> 
+                Real-time updates allow you to view current card counts directly from the site.
+            </li>
+            <li>
+                <strong>Progress Tracking:</strong> 
+                Visual indicators, such as grayscale for uncollected cards, help track collection progress at a glance.
+            </li>
+        </ul>
+    </div>
+
+    <h2>Mission</h2>
+    <div class="section">
+        <p>
+            The goal of this platform is simple: to share the beauty and breadth of my 
+            collection 
+            while collaborating with others to complete the missing elements of each subset. 
+            This site serves as a bridge to connect with fellow collectors, inspire trades, and celebrate the shared joy of collecting MTG cards.
+        </p>
+    </div>
+    </div>
+</body>
+</html>
