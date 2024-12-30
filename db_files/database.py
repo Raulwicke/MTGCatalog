@@ -9,12 +9,15 @@ def database_setup():
     create_users_table()
     create_outlaws_table()
     create_murders_table()
+    create_score_table()
     # Indices and Views
     create_indices()
     #Cleanup and Aux functions
     run_table_cleanup()
 
-
+# ************* #
+# CREATE TABLES #
+# ************* #
 def create_planeswalker_table():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -35,7 +38,51 @@ def create_planeswalker_table():
     conn.commit()
     conn.close()
 
-# Adding user logins for the editing
+def create_murders_table():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS murders (
+            name TEXT PRIMARY KEY,
+            collected INT DEFAULT 0,
+            set_code TEXT,
+            collector_number INT,
+            image_url TEXT,
+            rarity TEXT
+        )
+    ''')
+
+def create_outlaws_table():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS outlaws (
+            name TEXT PRIMARY KEY,
+            collected INT DEFAULT 0,
+            set_code TEXT,
+            collector_number INT,
+            image_url TEXT,
+            rarity TEXT
+        )
+    ''')
+
+def create_score_table():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS score (
+            name TEXT PRIMARY KEY,
+            collected INT DEFAULT 0,
+            set_code TEXT,
+            collector_number INT,
+            image_url TEXT,
+            rarity TEXT
+        )
+    ''')
+
 def create_users_table():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -49,6 +96,10 @@ def create_users_table():
     conn.commit()
     conn.close()
 
+# ***************** #
+# INDICES AND VIEWS #
+# ***************** #
+
 def create_indices():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -58,6 +109,9 @@ def create_indices():
     conn.commit()
     conn.close()
 
+# *************** #
+# CLEANUP AND AUX #
+# *************** #
 def run_table_cleanup():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -105,33 +159,25 @@ def run_table_cleanup():
     name = 'Island'
 '''
     )
+
+    cursor.execute('''
+    UPDATE score
+    SET image_url = Null
+    WHERE image_url = '';                   
+''')
     conn.commit()
     conn.close()
 
-def create_outlaws_table():
+def drop_table(table_name):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS murders (
-            name TEXT PRIMARY KEY,
-            collected INT DEFAULT 0,
-            set_code TEXT,
-            collector_number INT,
-            image_url TEXT
-        )
-    ''')
 
-def create_murders_table():
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS murders (
-            name TEXT PRIMARY KEY,
-            collected INT DEFAULT 0,
-            set_code TEXT,
-            collector_number INT,
-            image_url TEXT
-        )
-    ''')
+    try:
+        # Dynamically format the query to include the table name
+        cursor.execute(f"DROP TABLE IF EXISTS {table_name};")
+        conn.commit()
+        print(f"Deleted table '{table_name}' from the database.")
+    except sqlite3.Error as e:
+        print(f"Error while dropping table '{table_name}': {e}")
+    finally:
+        conn.close()

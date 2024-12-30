@@ -7,61 +7,114 @@
     <link rel="stylesheet" href="/static/new-style.css">
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('open-sidebar').addEventListener('click', function () {
-                document.getElementById('sidebar').style.width = '300px'; // Open sidebar
+        const sidebar = document.getElementById('search-sidebar');
+        const mainContent = document.getElementById('main-content');
+    
+        // Open sidebar
+        document.getElementById('open-sidebar').addEventListener('click', function () {
+            sidebar.classList.add('open');
+            mainContent.classList.add('shrunk');
             });
     
-            document.getElementById('close-sidebar').addEventListener('click', function () {
-                document.getElementById('sidebar').style.width = '0'; // Close sidebar
+        // Close sidebar
+        document.getElementById('close-sidebar').addEventListener('click', function () {
+            sidebar.classList.remove('open');
+            mainContent.classList.remove('shrunk');
             });
         });
-    </script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('search-sidebar');
+        const mainContent = document.getElementById('main-content');
+        const openSidebarButton = document.getElementById('open-sidebar');
+        const closeSidebarButton = document.getElementById('close-sidebar');
     
+        // Restore sidebar state from localStorage
+        if (localStorage.getItem('sidebarOpen') === 'true') {
+            sidebar.classList.add('open');
+            mainContent.classList.add('shrunk');
+        }
+    
+        // Open sidebar
+        openSidebarButton.addEventListener('click', function () {
+            sidebar.classList.add('open');
+            mainContent.classList.add('shrunk');
+            localStorage.setItem('sidebarOpen', 'true'); // Save state
+        });
+    
+        // Close sidebar
+        closeSidebarButton.addEventListener('click', function () {
+            sidebar.classList.remove('open');
+            mainContent.classList.remove('shrunk');
+            localStorage.setItem('sidebarOpen', 'false'); // Save state
+        });
+    });
+    </script>
 </head>
 <body>
-    <div class="nav-bar">
-        <ul>
-            <li><a href="/" class="dropbtn">Home</a></li>
-            <li class="dropdown">
-                <a href="#" class="dropbtn">Collections</a>
-                <div class="dropdown-content">
-                    <a href="/planeswalkers">Planeswalkers</a>
-                    <a href="/collections/otj">Outlaws</a>
-                    <a href="/collections/mkm">Karlov</a>
-                </div>
-            </li>
-            {% if current_user.is_authenticated %}
-                <li><a href="/update_murders" class="dropbtn">Update Collection</a></li>
-            {% endif %}</li>
-        </ul>
-        <div class="login-container">
-                {% if current_user.is_authenticated %}
-                <a href="/logout" class="login-btn">Logout</a>
-                {% else %}
-                    class="nav-links"><a href="/login" class="login-btn">Login</a>
-                {% endif %}
+    
+    {% include "nav.html" %}
+
+    <h1>Murders at Karlov Manor Catalog</h1> 
+    <div class="page-container">
+        <div id="main-content" class="main-content">
+            <div class="card-container catalog">
+                {% for murder in murders %}
+                    <div class="card">
+                        {% if murder.image_url %}
+                            <img 
+                            src="{{ murder.image_url}}" 
+                            alt="{{ murder.name }}" 
+                            class="{% if not murder.greyscale %}collected{% endif %}"
+                            onclick="showPopup('{{murder.name }}')">
+                        {% else %}
+                            <div>No Image Available</div>
+                        {% endif %}
+                        <div>{{ murder.name }} (#{{ murder.collector_number }})</div>
+                        <div class="collection-status">
+                            Collected: {{ murder.collected }} / 4
+                        </div>   
+                    </div>
+                {% endfor %}
+            </div>
+            <div id="search-sidebar" class="sidebar">
+                <a href="javascript:void(0)" class="close-btn" id="close-sidebar">&times;</a>
+                <form id="search-form" method="GET" action="/collections/mkm">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" placeholder="Enter card name">
+                    </div>
+                    <div class="form-group">
+                        <label for="collected">Collected:</label>
+                        <select id="collected" name="collected">
+                            <option value="">Any</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="full_set">Full Set:</label>
+                        <select id="full_set" name="full_set">
+                            <option value="">Any</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rarity">Rarity</label>
+                        <select id="rarity" name="rarity">
+                            <option value="">Any</option>
+                            <option value="common">Common</option>
+                            <option value="uncommon">Uncommon</option>
+                            <option value="rare">Rare</option>
+                            <option value="mythic">Mythic</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="search-btn">Search</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-    <h1>Murders at Karlov Manor Catalog</h1> 
-    <div class="card-container">
-        {% for murder in murders %}
-            <div class="card">
-                {% if murder.image_url %}
-                    <img 
-                    src="{{ murder.image_url}}" 
-                    alt="{{ murder.name }}" 
-                    class="{% if not murder.greyscale %}collected{% endif %}"
-                    onclick="showPopup('{{murder.name }}')">
-                {% else %}
-                    <div>No Image Available</div>
-                {% endif %}
-                <div>{{ murder.name }} (#{{ murder.collector_number }})</div>
-                <div class="collection-status">
-                    Collected: {{ murder.collected }} / 4
-                </div>   
-            </div>
-        {% endfor %}
-    </div>
-    
 </body>
 </html>

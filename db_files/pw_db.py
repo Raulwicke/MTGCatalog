@@ -96,7 +96,7 @@ def planeswalker_search(query):
     ''', (f'%{query}%', f'%{query}%', f'%{query}%'))
 
     results = cursor.fetchall()
-    print(f"DEBUG: Database search results for query '{query}': {results}")  # Log query results
+    # print(f"DEBUG: Database search results for query '{query}': {results}")  # Log query results
 
     conn.close()
     return results
@@ -127,7 +127,7 @@ def planeswalker_advanced_search(name='', collected='', set_code='', collector_n
         query += ' AND collector_number = ?'
         params.append(collector_number)
 
-    print(f"DEBUG: Executing query: {query} with params {params}")  # Debug log
+    # print(f"DEBUG: Executing query: {query} with params {params}")  # Debug log
 
     cursor.execute(query, params)
     results = cursor.fetchall()

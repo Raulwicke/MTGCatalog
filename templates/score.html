@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outlaws of Thunder Junction Catalog</title>
+    <title>The Big Score Catalog</title>
     <link rel="stylesheet" href="/static/new-style.css">
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -48,30 +48,30 @@
             localStorage.setItem('sidebarOpen', 'false'); // Save state
         });
     });
-</script>
+        </script>
     
 </head>
 <body>
     {% include "nav.html" %}
 
-    <h1>Outlaws of Thunder Junction Catalog</h1> 
+    <h1>The Big Score Catalog</h1> 
     <div class="page-container">
         <div id="main-content" class="main-content">
             <div class="card-container catalog">
-                {% for outlaw in outlaws %}
+                {% for big in score %}
                     <div class="card">
-                        {% if outlaw.image_url %}
+                        {% if big.image_url %}
                             <img 
-                            src="{{ outlaw.image_url}}" 
-                            alt="{{ outlaw.name }}" 
-                            class="{% if not outlaw.greyscale %}collected{% endif %}"
-                            onclick="showPopup('{{outlaw.name }}')">
+                            src="{{ big.image_url}}" 
+                            alt="{{ big.name }}" 
+                            class="{% if not big.greyscale %}collected{% endif %}"
+                            onclick="showPopup('{{big.name }}')">
                         {% else %}
                             <div>No Image Available</div>
                         {% endif %}
-                        <div>{{ outlaw.name }} (#{{ outlaw.collector_number }})</div>
+                        <div>{{ big.name }} (#{{ big.collector_number }})</div>
                         <div class="collection-status">
-                            Collected: {{ outlaw.collected }} / 4
+                            Collected: {{ big.collected }} / 4
                         </div>   
                     </div>
                 {% endfor %}
@@ -79,7 +79,7 @@
         </div>
         <div id="search-sidebar" class="sidebar">
             <a href="javascript:void(0)" class="close-btn" id="close-sidebar">&times;</a>
-            <form id="search-form" method="GET" action="/collections/otj">
+            <form id="search-form" method="GET" action="/collections/big">
                 <div class="form-group">
                     <label for="name">Name:</label>
                     <input type="text" id="name" name="name" placeholder="Enter card name">
@@ -98,16 +98,6 @@
                         <option value="">Any</option>
                         <option value="true">Yes</option>
                         <option value="false">No</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="rarity">Rarity</label>
-                    <select id="rarity" name="rarity">
-                        <option value="">Any</option>
-                        <option value="common">Common</option>
-                        <option value="uncommon">Uncommon</option>
-                        <option value="rare">Rare</option>
-                        <option value="mythic">Mythic</option>
                     </select>
                 </div>
                 <div class="form-actions">

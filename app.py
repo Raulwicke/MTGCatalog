@@ -28,10 +28,19 @@ from db_files.user_db import(
     )
 
 from db_files.standard_db import(
-    update_outlaw_card,
+    # READ 
     outlaws_read_all,
     murders_read_all,
-    update_murders_card
+    score_read_all,
+    # UPDATE
+    update_outlaw_card,
+    update_murders_card,
+    update_score_card,
+    # SEARCH
+    outlaws_advanced_search,
+    murders_advanced_search,
+    score_advanced_search
+
 )
 from db_files.database import db_path
 from image_fix import process_updated_images
@@ -53,6 +62,10 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = "info"
 
 
+# ******************** #
+# LOGIN/LOGOUT METHODS #
+# ******************** #
+
 class User(UserMixin):
     def __init__(self, id, username):
         self.id = id
@@ -64,6 +77,61 @@ def load_user(user_id):
     if user:
         return User(user[0], user[1])
     return None
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    next_page = request.args.get('next') or request.referrer or url_for('home')  # Check for 'next', then referrer, then home
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        app.logger.info(f"Login attempt with username: {username}")
+        
+        # Fetch user details by username
+        user = get_user_by_username(username)
+        
+        if user and check_password_hash(user[2], password):
+            user_obj = User(user[0], user[1])
+            login_user(user_obj)
+            flash('Logged in successfully!', 'success')
+            return redirect(next_page)  # Redirect to the appropriate next page
+        else:
+            flash('Invalid username or password.', 'danger')
+    return render_template('login.html', next=next_page)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    next_page = request.referrer or url_for('home')  # Redirect to the previous page or home
+    return redirect(next_page)
+# ************** #
+# ERROR HANDLING #
+#  ************* #
+@app.route('/error')
+def error_page():
+    return render_template('in_progress.html'), 500
+
+# Handle 404 Errors (Page Not Found)
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('in_progress.html', error_message="Page Not Found!"), 404
+
+# Handle 500 Errors (Internal Server Error)
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('in_progress.html', error_message="Internal Server Error!"), 500
+
+# Handle All Other Uncaught Errors
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Log the error for debugging purposes
+    app.logger.error(f"Unhandled Exception: {e}")
+    return render_template('in_progress.html', error_message="An unexpected error occurred!"), 500
+
+# ********************** #
+# WEBPAGE ACCESS METHODS #
+# ********************** #
 
 @app.route('/')
 def home():
@@ -77,9 +145,35 @@ def home():
     cursor.execute('SELECT COUNT(*) FROM planeswalkers')
     total_planeswalkers = cursor.fetchone()[0]
 
+    cursor.execute('SELECT COUNT(*) FROM outlaws WHERE collected > 0')
+    otj_collected = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM outlaws')
+    total_otj = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM murders WHERE collected > 0')
+    mkm_collected = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM murders')
+    total_mkm = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM score WHERE collected > 0')
+    big_collected = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM score')
+    total_big = cursor.fetchone()[0]
+
     conn.close()
 
-    return render_template('home.html', planeswalkers_collected=planeswalkers_collected, total_planeswalkers=total_planeswalkers)
+    return render_template('home.html', 
+                           planeswalkers_collected=planeswalkers_collected, 
+                           total_planeswalkers=total_planeswalkers,
+                           otj_collected = otj_collected,
+                           total_otj = total_otj,
+                           mkm_collected = mkm_collected,
+                           total_mkm = total_mkm,
+                           big_collected = big_collected,
+                           total_big = total_big,)
 
 @app.route('/planeswalkers', methods=['GET'])
 def catalog():
@@ -104,28 +198,45 @@ def catalog():
         for row in planeswalkers
     ]
     
-    return render_template('catalog.html', planeswalkers=planeswalkers_data)
+    return render_template('catalog.html', planeswalkers=planeswalkers_data, show_search_tab=True, show_update_button=True, update_url='/update_planeswalkers')
 
 @app.route('/collections/otj', methods=['GET'])
 def outlaws():
     outlaws = outlaws_read_all()
-    print(outlaws)
+
+    name = request.args.get('name', '').strip()
+    collected = request.args.get('collected', '').strip()
+    set_code = request.args.get('full_set', '').strip()
+    rarity = request.args.get('rarity', '').strip()
+
+    # Build search query
+    outlaws = outlaws_advanced_search(name, collected, set_code, rarity)
+
     outlaws_data = [
         {
             'name': row[0],
             'collected': row[1],
             'collector_number': row[3],
             'image_url': row[4],
+            'rarity': row[5],
             'greyscale': not row[1]  # True if not collected, for grayscale filtering
         }
         for row in outlaws
     ]
-    return render_template('outlaws.html', outlaws=outlaws_data)
+    return render_template('outlaws.html', outlaws=outlaws_data, show_search_tab=True, show_update_button=True, update_url='/update_outlaws')
 
 @app.route('/collections/mkm', methods=['GET'])
 def murders():
     murders = murders_read_all()
-    # print(outlaws)
+    
+    name = request.args.get('name', '').strip()
+    collected = request.args.get('collected', '').strip()
+    set_code = request.args.get('full_set', '').strip()
+    rarity = request.args.get('rarity', '').strip()
+
+    # Build search query
+    murders = murders_advanced_search(name, collected, set_code, rarity)
+
     murders_data = [
         {
             'name': row[0],
@@ -136,29 +247,35 @@ def murders():
         }
         for row in murders
     ]
-    return render_template('murders.html', murders=murders_data)
+    return render_template('murders.html', murders=murders_data, show_search_tab=True, show_update_button=True, update_url='/update_murders')
 
-@app.route('/search_outlaws', methods=['GET'])
-def search_outlaws():
-    name = request.args.get('name', '')
-    set_code = request.args.get('set_code', '')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    query = 'SELECT * FROM outlaws WHERE 1=1'
-    params = []
+@app.route('/collections/big', methods=['GET'])
+def score():
+    score = score_read_all()
 
-    if name:
-        query += ' AND name LIKE ?'
-        params.append(f'%{name}%')
-    if set_code:
-        query += ' AND set_code LIKE ?'
-        params.append(f'%{set_code}%')
+    name = request.args.get('name', '').strip()
+    collected = request.args.get('collected', '').strip()
+    set_code = request.args.get('full_set', '').strip()
 
-    cursor.execute(query, params)
-    results = cursor.fetchall()
-    conn.close()
+    score = score_advanced_search(name, collected, set_code)
 
-    return render_template('outlaws.html', cards=results)
+    score_data = [
+        {
+            'name': row[0],
+            'collected': row[1],
+            'collector_number': row[3],
+            'image_url': row[4],
+            'greyscale': not row[1]  # True if not collected, for grayscale filtering
+        }
+        for row in score
+    ]
+    return render_template('score.html', score=score_data, show_search_tab=True, show_update_button=True, update_url='/update_score')
+
+
+    return render_template('in_progress.html')
+# ************** #
+# UPDATE METHODS #
+# ************** #
 
 @app.route('/update_planeswalkers', methods=['GET', 'POST'])
 @login_required
@@ -179,8 +296,8 @@ def update_planeswalkers():
         for pw_data in planeswalker_updates:
             name = pw_data.get('name')
             collected = pw_data.get('collected', 'false') == 'true'
-            collected_set = pw_data.get('collected_set')
-            collector_number = pw_data.get('collector_number')
+            collected_set = pw_data.get('collected_set', None)
+            collector_number = pw_data.get('collector_number', None)
 
             # Handle empty fields: Fetch existing value or set NULL
             if collected_set == '':
@@ -191,8 +308,12 @@ def update_planeswalkers():
                 current_data = get_planeswalker_by_name(name)
                 collector_number = current_data['collector_number'] or None
 
+
+
             # Perform the update
             planeswalker_update(name, collected, collected_set, collector_number)
+            if collected_set != '' or collector_number != '':
+                process_updated_images(name, collected_set, collector_number=None)
 
         flash('All planeswalkers updated successfully!', 'success')
         return redirect(url_for('update_planeswalkers'))
@@ -216,13 +337,20 @@ def update_murders():
   # Replace with your DB fetch logic
     return render_template('update_murders.html', murders=murders)
 
+@app.route('/update_score', methods=['GET'])
+@login_required
+def update_score():
+    score = score_read_all()
+    # print(outlaws)
+  # Replace with your DB fetch logic
+    return render_template('update_score.html', score=score)
 
 @app.route('/process_update_outlaws', methods=['POST'])
 @login_required
 def process_update_outlaws():
     try:
         updates = request.form.to_dict(flat=True)  # Convert form data to dictionary
-        print(updates)  # Debugging: Check structure of form data
+        # print(updates)  # Debugging: Check structure of form data
 
         # Iterate over the form data and update each card in the database
         for collector_number, collected_count in updates.items():
@@ -238,7 +366,7 @@ def process_update_outlaws():
 def process_update_murders():
     try:
         updates = request.form.to_dict(flat=True)  # Convert form data to dictionary
-        print(updates)  # Debugging: Check structure of form data
+        # print(updates)  # Debugging: Check structure of form data
 
         # Iterate over the form data and update each card in the database
         for collector_number, collected_count in updates.items():
@@ -249,7 +377,25 @@ def process_update_murders():
         flash(f"Error updating murders: {str(e)}", "danger")
     return redirect(url_for('update_murders'))
 
+@app.route('/process_update_score', methods=['POST'])
+@login_required
+def process_update_score():
+    try:
+        updates = request.form.to_dict(flat=True)  # Convert form data to dictionary
+        # print(updates)  # Debugging: Check structure of form data
 
+        # Iterate over the form data and update each card in the database
+        for collector_number, collected_count in updates.items():
+            update_score_card(collector_number, int(collected_count))  # Use collector_number to update database
+
+        flash("Score collection updated successfully!", "success")
+    except Exception as e:
+        flash(f"Error updating score: {str(e)}", "danger")
+    return redirect(url_for('update_score'))
+
+# ************** #
+# EXPORT METHODS #
+# ************** #
 
 @app.route('/export_csv')
 @login_required
@@ -314,7 +460,7 @@ def export_outlaws_csv():
     # Generate CSV
     csv_data = io.StringIO()
     writer = csv.writer(csv_data)
-    writer.writerow(['Name', 'Set Code', 'Collector Number', 'Collected'])
+    writer.writerow(['name', 'set', 'collector_number', 'collected', 'image_url'])
     writer.writerows(rows)
     csv_data.seek(0)
 
@@ -360,7 +506,7 @@ def export_murders_csv():
     # Generate CSV
     csv_data = io.StringIO()
     writer = csv.writer(csv_data)
-    writer.writerow(['Name', 'Set Code', 'Collector Number', 'Collected'])
+    writer.writerow(['name', 'set', 'collector_number', 'collected', 'image_url'])
     writer.writerows(rows)
     csv_data.seek(0)
 
@@ -394,34 +540,52 @@ def export_murders_sql():
         headers={"Content-Disposition": "attachment;filename=murders_collection.sql"}
     )
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    next_page = request.args.get('next') or request.referrer or url_for('home')  # Check for 'next', then referrer, then home
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        app.logger.info(f"Login attempt with username: {username}")
-        
-        # Fetch user details by username
-        user = get_user_by_username(username)
-        
-        if user and check_password_hash(user[2], password):
-            user_obj = User(user[0], user[1])
-            login_user(user_obj)
-            flash('Logged in successfully!', 'success')
-            return redirect(next_page)  # Redirect to the appropriate next page
-        else:
-            flash('Invalid username or password.', 'danger')
-    return render_template('login.html', next=next_page)
-
-@app.route('/logout')
+@app.route('/export_score_csv', methods=['GET'])
 @login_required
-def logout():
-    logout_user()
-    flash('You have been logged out.', 'info')
-    next_page = request.referrer or url_for('home')  # Redirect to the previous page or home
-    return redirect(next_page)
+def export_score_csv():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name, set_code, collector_number, collected FROM score")
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Generate CSV
+    csv_data = io.StringIO()
+    writer = csv.writer(csv_data)
+    writer.writerow(['name', 'set', 'collector_number', 'collected', 'image_url'])
+    writer.writerows(rows)
+    csv_data.seek(0)
+
+    # Return as file
+    return Response(
+        csv_data.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=score_collection.csv"}
+    )
+
+@app.route('/export_score_sql', methods=['GET'])
+@login_required
+def export_score_sql():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name, set_code, collector_number, collected FROM score")
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Generate SQL commands
+    sql_data = io.StringIO()
+    for row in rows:
+        sql_data.write(f"INSERT OR REPLACE INTO score (name, set_code, collector_number, collected) "
+                       f"VALUES ('{row[0]}', '{row[1]}', {row[2]}, {row[3]});\n")
+    sql_data.seek(0)
+
+    # Return as file
+    return Response(
+        sql_data.getvalue(),
+        mimetype="text/plain",
+        headers={"Content-Disposition": "attachment;filename=score_collection.sql"}
+    )
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

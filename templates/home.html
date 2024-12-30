@@ -7,26 +7,8 @@
     <link rel="stylesheet" href="/static/new-style.css">
 </head>
 <body>
-    <div class="nav-bar">
-        <ul>
-            <li><a href="/" class="dropbtn">Home</a></li>
-            <li class="dropdown">
-                <a href="#" class="dropbtn">Collections</a>
-                <div class="dropdown-content">
-                    <a href="/planeswalkers">Planeswalkers</a>
-                    <a href="/collections/otj">Outlaws</a>
-                    <a href="/collections/mkm">Karlov</a>
-                </div>
-            </li>
-        </ul>
-        <div class="login-container">
-                {% if current_user.is_authenticated %}
-                <a href="/logout" class="login-btn">Logout</a>
-                {% else %}
-                    class="nav-links"><a href="/login" class="login-btn">Login</a>
-                {% endif %}
-        </div>
-    </div>
+    
+    {% include "nav.html" %}
 
     <div class="container">
         <h1>Welcome to My MTG Collection Portal!</h1>
@@ -77,6 +59,15 @@
             while collaborating with others to complete the missing elements of each subset. 
             This site serves as a bridge to connect with fellow collectors, inspire trades, and celebrate the shared joy of collecting MTG cards.
         </p>
+    </div>
+
+    <div class="section">
+        {% if current_user.is_authenticated %}
+        <p>Collected <b>{{ planeswalkers_collected }}</b> out of <b>{{ total_planeswalkers }}</b> Planeswalkers!</p>
+        <p>Collected <b>{{ otj_collected }}</b> out of <b>{{ total_otj }}</b> from Outlaws of Thunder Junction!</p>
+        <p>Collected <b>{{ mkm_collected }}</b> out of <b>{{ total_mkm }}</b> from Murders at Karlov Manor!</p>
+        <p>Collected <b>{{ big_collected }}</b> out of <b>{{ total_big }}</b> from Big Score!</p>
+        {% endif %}
     </div>
     </div>
 </body>
