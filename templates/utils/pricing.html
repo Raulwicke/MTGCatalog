@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection Pricing Sheet</title>
+    <link rel="stylesheet" href="/static/css/new-style.css">
+</head>
+<body>
+    {% include "nav.html" %}
+    <h1>Collection Pricing Sheet</h1>
+    <form method="POST" action="{{ url_for('process_update_pricing') }}">
+        <button class="export-btn">Update Prices</button>
+    </form>
+    <br />
+    <p>The current value of Outlaw of Thunder Junction cards owned are: {{otj_val}}</p>
+    <p>The current value of high value cards from Outlaw of Thunder Junction are: {{otj_high_val}}</p>
+    <br />
+    <p>The current value of The Big Score cards owned are: {{big_val}}</p>
+    <p>The current value of high value cards from The Big Score are: {{big_high_val}}</p>
+    <br />
+    <p>The current value of Murders at Karlov Manor cards owned are: {{mkm_val}}</p>
+    <p>The current value of high value cards from Murders at Karlov Manor are: {{mkm_high_val}}</p>
+</body> 

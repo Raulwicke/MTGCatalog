@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Update Murders at Karlov Manor Collection</title>
+        <link rel="stylesheet" href="/static/css/styles.css">
+    </head>
+    <body>
+        <form method="POST" action="{{ url_for('process_update_murders') }}">
+            <!-- Navigation Bar -->
+            <div class="nav-bar">
+                <a href="{{ url_for('export_murders_csv') }}" class="export-btn">Export as CSV</a>
+                <a href="{{ url_for('export_murders_sql') }}" class="export-btn">Export as SQL</a>
+                <a href="{{ url_for('murders') }}" class="export-btn">Back to Murders</a>
+                <button class="export-btn" type="submit">Submit All Changes</button>
+            </div>
+
+            <!-- Collection Update Table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Card Name</th>
+                        <th>Set</th>
+                        <th>Collector #</th>
+                        <th>Collected</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if murders %}
+                        {% for card in murders %}
+                        <tr>
+                            <td>{{ card[0] }}</td> <!-- Card Name for user clarity -->
+                            <td>{{ card[2] }}</td> <!-- Set Code -->
+                            <td><center>{{ card[3] }}</center></td> <!-- Collector Number -->
+                            <td>
+                                <input 
+                                    type="number" 
+                                    name="{{ card[3] }}" 
+                                    value="{{ card[1] }}" 
+                                    min="0" 
+                                    max="4">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center;">No cards found in the database.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+                
+            </table>
+        </form>
+    </body>
+</html>

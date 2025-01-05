@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oops! Page Not Found</title>
+    <link rel="stylesheet" href="/static/css/new-style.css">
+    <style>
+        body {
+            background-color: #fdf5e6;
+            color: #333;
+            text-align: center;
+        }
+
+        .content{
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+
+        }
+
+        .content h1 {
+            font-size: 3rem;
+            color: #d72631;
+            animation: bounce 1s infinite alternate;
+        }
+
+        .content p {
+            font-size: 1.5rem;
+            margin: 20px auto;
+        }
+
+        img {
+            display: block;
+            margin: 20px auto;
+            width: 50%;
+            border: 5px solid #333;
+            border-radius: 15px;
+            animation: spin 3s infinite linear;
+        }
+
+        .content {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        .fun-button {
+            background-color: #d72631;
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .fun-button:hover {
+            background-color: #ff5722;
+            transform: scale(1.1);
+        }
+
+    </style>
+</head>
+<body>
+    {% include "nav.html" %}
+    <div class="content">
+        <h1>Oops! That's Not Right...</h1>
+        <p>{{ error_message }}</p>
+        <img src="https://cards.scryfall.io/normal/front/0/1/01d3e6ea-4791-4948-af22-c1bd04c34c1e.jpg?1712355420" alt="404 Image" />
+        <p>Looks like this page hasn't been added yet. We promise it's not lost forever!</p>
+        <p>Come back soon—maybe the mystery will be solved by then!</p>
+        <div class="button-container">
+            <button class="fun-button" onclick="window.location.href='/'">Back to Home</button>
+            <button class="fun-button" onclick="window.location.href='/collections/otj'">View Another Collection</button>
+        </div>
+    </div>
+</body>
+</html>

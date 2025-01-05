@@ -1,7 +1,8 @@
 import sqlite3
+from flask import current_app
 from werkzeug.security import generate_password_hash
 
-db_path = './data/collection.db'
+DB_PATH = './data/collection.db'
 
 def database_setup():
     # Create tables
@@ -10,6 +11,7 @@ def database_setup():
     create_outlaws_table()
     create_murders_table()
     create_score_table()
+    create_trades_table()
     # Indices and Views
     create_indices()
     #Cleanup and Aux functions
@@ -19,7 +21,9 @@ def database_setup():
 # CREATE TABLES #
 # ************* #
 def create_planeswalker_table():
-    conn = sqlite3.connect(db_path)
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
     cursor.execute('''
             CREATE TABLE IF NOT EXISTS planeswalkers (
@@ -29,7 +33,8 @@ def create_planeswalker_table():
             collected_set TEXT DEFAULT '',
             collector_number INT DEFAULT 0,
             print_order INT,
-            image_url TEXT
+            image_url TEXT,
+            price SMALLMONEY
             )
     
         '''
@@ -39,7 +44,9 @@ def create_planeswalker_table():
     conn.close()
 
 def create_murders_table():
-    conn = sqlite3.connect(db_path)
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -49,12 +56,15 @@ def create_murders_table():
             set_code TEXT,
             collector_number INT,
             image_url TEXT,
-            rarity TEXT
+            rarity TEXT,
+            price SMALLMONEY
         )
     ''')
 
 def create_outlaws_table():
-    conn = sqlite3.connect(db_path)
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -64,12 +74,15 @@ def create_outlaws_table():
             set_code TEXT,
             collector_number INT,
             image_url TEXT,
-            rarity TEXT
+            rarity TEXT,
+            price SMALLMONEY
         )
     ''')
 
 def create_score_table():
-    conn = sqlite3.connect(db_path)
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -79,12 +92,15 @@ def create_score_table():
             set_code TEXT,
             collector_number INT,
             image_url TEXT,
-            rarity TEXT
+            rarity TEXT,
+            price SMALLMONEY
         )
     ''')
 
 def create_users_table():
-    conn = sqlite3.connect(db_path)
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -96,12 +112,36 @@ def create_users_table():
     conn.commit()
     conn.close()
 
+def create_trades_table():
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+    cursor.execute('''
+            CREATE TABLE IF NOT EXISTS trades (
+            name TEXT PRIMARY KEY,
+            collected INT DEFAULT 0,
+            collected_set TEXT DEFAULT '',
+            collector_number INT DEFAULT 0,
+            print_order INT,
+            image_url TEXT,
+            price SMALLMONEY
+            )
+    
+        '''
+    )
+
+    conn.commit()
+    conn.close()
+
 # ***************** #
 # INDICES AND VIEWS #
 # ***************** #
 
 def create_indices():
-    conn = sqlite3.connect(db_path)
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
     cursor.execute('''
         CREATE INDEX IF NOT EXISTS idx_planeswalkers_name ON planeswalkers (name)
@@ -113,7 +153,9 @@ def create_indices():
 # CLEANUP AND AUX #
 # *************** #
 def run_table_cleanup():
-    conn = sqlite3.connect(db_path)
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
     cursor.execute('''
     UPDATE planeswalkers
@@ -169,7 +211,9 @@ def run_table_cleanup():
     conn.close()
 
 def drop_table(table_name):
-    conn = sqlite3.connect(db_path)
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
 
     try:
@@ -179,5 +223,23 @@ def drop_table(table_name):
         print(f"Deleted table '{table_name}' from the database.")
     except sqlite3.Error as e:
         print(f"Error while dropping table '{table_name}': {e}")
+    finally:
+        conn.close()
+
+def alter_tables(table_name,column,datatype):
+    DB_PATH = current_app.config['DB_PATH']
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    try:
+        # Dynamically format the query to include the table name
+        cursor.execute(f'''ALTER TABLE {table_name}
+                       ADD {column} {datatype}
+                       ''')
+        conn.commit()
+        print(f"Added '{column}' with datatype '{datatype}' to table '{table_name}' in the database.")
+    except sqlite3.Error as e:
+        print(f"Error adding '{column}' to table '{table_name}': {e}")
     finally:
         conn.close()
