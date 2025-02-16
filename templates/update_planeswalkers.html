@@ -8,12 +8,12 @@
     </head>
     <body>
         <form method="POST" action="{{ url_for('update_planeswalkers') }}">
-            <div class="nav-bar">
-                <a href="{{ url_for('export_csv') }}" class="export-btn">Export as CSV</a>
-                <a href="{{ url_for('export_sql') }}" class="export-btn">Export as SQL</a>
-                <a href="{{ url_for('catalog') }}" class="export-btn">Back to Planeswalkers</a>
-                <button class="export-btn" type="submit">Submit All Changes</button>
-            </div>
+        <div class="nav-bar">
+            <a href="{{ url_for('export_csv') }}" class="export-btn">Export as CSV</a>
+            <a href="{{ url_for('export_sql') }}" class="export-btn">Export as SQL</a>
+            <a href="{{ url_for('catalog') }}" class="export-btn">Back to Planeswalkers</a>
+            <button class="export-btn" type="submit">Submit All Changes</button>
+        </div>
             <table>
                 <thead>
                     <tr>

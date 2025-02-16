@@ -10,10 +10,6 @@ def fetch_card_image_url(card_name, set_code, collector_number=None):
     Handles single-faced, double-faced, meld cards, and collector numbers.
     """
     # Construct the Scryfall query URL
-
-    if "//" in card_name:
-        card_name = card_name.split(" //")[0]
-  
     if collector_number:
         query_url = f"https://api.scryfall.com/cards/{set_code}/{collector_number}"
     else:
@@ -53,10 +49,6 @@ def update_card_image_url(card_name, image_url):
         )
         cursor.execute(
             "UPDATE murders SET image_url = ? WHERE name = ?",
-            (image_url, card_name)
-        )
-        cursor.execute(
-            "UPDATE score SET image_url = ? WHERE name = ?",
             (image_url, card_name)
         )
         conn.commit()

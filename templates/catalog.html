@@ -52,7 +52,33 @@
     
 </head>
 <body>
-    {% include "nav.html" %}
+    <div class="nav-bar">
+        <ul>
+            <li><a href="/" class="dropbtn">Home</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Collections</a>
+                <div class="dropdown-content">
+                    <a href="/planeswalkers">Planeswalkers</a>
+                    <a href="/collections/otj">Outlaws</a>
+                    <a href="/collections/mkm">Karlov</a>
+                </div>
+            </li>
+            {% if current_user.is_authenticated %}
+            <li><a href="/update_planeswalkers" class="dropbtn">Update Collection</a></li>
+            {% endif %}
+            <li>
+                <button id="open-sidebar" class="dropbtn">Search</button>
+            </li>
+        </ul>
+        <div class="login-container">
+                {% if current_user.is_authenticated %}
+                <a href="/logout" class="login-btn">Logout</a>
+                {% else %}
+                    class="nav-links"><a href="/login" class="login-btn">Login</a>
+                {% endif %}
+        </div>
+    </div>
+
            
 <h1>Planeswalker Catalog</h1> 
     <div class="page-container">
